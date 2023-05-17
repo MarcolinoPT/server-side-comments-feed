@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  serversidecommentsfeed:
+    container_name: api
+    image: ${DOCKER_REGISTRY-}serversidecommentsfeed
+    depends_on: 
+      - ravendb
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  ravendb:
+    container_name: ravendb
+    image: ravendb/ravendb:latest
+    ports:
+      - "8080:8080"
+      - "38888:38888"
+    volumes:
+      - ravendb-data:/var/lib/ravendb/data
+      - ravendb-databases:/var/lib/ravendb/databases
+    environment:
+      - RAVEN_License_Eula_Accepted=true
+      - RAVEN_Setup_Mode=Unsecured
+      - RAVEN_ARGS=--Setup.Mode=Unsecured
+volumes:
+  ravendb-data:
+  ravendb-databases:
