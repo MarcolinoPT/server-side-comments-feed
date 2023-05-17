@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "backend_challenge": {
+    "ServerSideCommentsFeed": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
