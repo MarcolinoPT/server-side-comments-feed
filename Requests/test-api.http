@@ -1,0 +1,9 @@
+# This file is used with the REST Client ( https://marketplace.visualstudio.com/items?itemName=humao.rest-client ) to issue requests and test the API
+# Postman or insomnia collections would also work to show how to use the API 
+
+GET http://localhost:5000/main/users/4
+Accept: application/json
+
+###
+GET http://localhost:5000/main/users?id=2&id=10
+Accept: application/json
