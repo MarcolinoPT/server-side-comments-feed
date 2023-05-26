@@ -5,9 +5,9 @@
 @port = 32770
 @host = {{hostname}}:{{port}}
 @contentType = application/json
+@entityId = "c75e41e4-6822-472a-9d75-2686fbb8eb7c"
 @user1 = "60b38a05-8488-4810-841d-0a9de794ab5f"
 @user2 = "9a2e3a1c-801e-4d7b-b4f3-75e44b6c1f42"
-
 
 ### Create a comment through user 1
 POST http://{{host}}/api/v1/comments
@@ -16,8 +16,8 @@ Content-Type:{{contentType}}
 
 {
     "authorId": {{user1}},
-    "entityId": "c75e41e4-6822-472a-9d75-2686fbb8eb7c",
-    "content": "<p>This is a paragraph.</p"
+    "entityId": {{entityId}},
+    "content": "<p>This is a paragraph.</p>"
 }
 
 ### Create a 2nd comment for the same entity through user 1
@@ -27,8 +27,8 @@ Content-Type:{{contentType}}
 
 {
     "authorId": {{user1}},
-    "entityId": "c75e41e4-6822-472a-9d75-2686fbb8eb7c",
-    "content": "<p>This is a paragraph 2.</p"
+    "entityId": {{entityId}},
+    "content": "<p>This is a paragraph 2.</p>"
 }
 
 ### Create a 3rd comment for the same entity through user 2
@@ -38,6 +38,6 @@ Content-Type:{{contentType}}
 
 {
     "authorId": {{user2}},
-    "entityId": "c75e41e4-6822-472a-9d75-2686fbb8eb7c",
-    "content": "<p>This is a paragraph 4.</p"
+    "entityId": {{entityId}},
+    "content": "<p>This is a paragraph 3.</p>"
 }

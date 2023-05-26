@@ -68,7 +68,7 @@ namespace CommentsFeed.Features.Comments
                 {
                     Id = Guid.NewGuid().ToEntityId<Comment>(),
                     Content = command.Content,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     UserId = command.AuthorId
                 };
                 await session.StoreAsync(entity: newComment,
@@ -83,7 +83,7 @@ namespace CommentsFeed.Features.Comments
                 {
                     entityCommentsFound.Children = entityCommentsFound.Children.Append(newComment.Id)
                                                                                .ToArray();
-                    entityCommentsFound.UpdatedAt = DateTime.Now;
+                    entityCommentsFound.UpdatedAt = DateTime.UtcNow;
                 }
                 // Store the new parent if it doesn't exist
                 else
@@ -92,8 +92,8 @@ namespace CommentsFeed.Features.Comments
                     {
                         Id = command.EntityId.ToEntityId<EntityComments>(),
                         Children = new[] { newComment.Id },
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
                     },
                                              token: cancellationToken);
                 }
