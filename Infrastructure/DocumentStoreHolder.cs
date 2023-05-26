@@ -19,7 +19,7 @@ namespace CommentsFeed.Infrastructure
             {
                 // Define the cluster node URLs (required)
                 // Set proper URL for db in container
-                Urls = new[] { "http://172.29.48.1:8080", 
+                Urls = new[] { "http://172.26.112.1:8080", 
                            /*some additional nodes of this cluster*/ },
 
                 // Set conventions as necessary (optional)
