@@ -31,7 +31,7 @@ namespace CommentsFeed.Features.Comments
 
         public record ReadCommentsRequest
         {
-            public Guid EntityId { get; init; }
+            public string EntityId { get; init; }
             public int PageIndex { get; init; }
             // To match the default page size of RavenDB
             public int PageSize { get; init; } = 25;
@@ -46,8 +46,8 @@ namespace CommentsFeed.Features.Comments
 
         public record CommentResponse
         {
-            public Guid Id { get; init; }
-            public Guid AuthorId { get; init; }
+            public string Id { get; init; }
+            public string AuthorId { get; init; }
             public DateTime CreatedAt { get; init; }
             public string Content { get; init; }
         }
@@ -61,9 +61,9 @@ namespace CommentsFeed.Features.Comments
                 PageSize = request.PageSize;
             }
 
-            public Guid EntityId { get; }
-            public int PageIndex { get; init; }
-            public int PageSize { get; init; }
+            public string EntityId { get; }
+            public int PageIndex { get; }
+            public int PageSize { get; }
         }
 
         internal class Handler : IRequestHandler<Query, ReadCommentsResponse>
@@ -82,7 +82,7 @@ namespace CommentsFeed.Features.Comments
                 var entityComments = await session.LoadAsync<EntityComments>(id: request.EntityId.ToEntityId<EntityComments>(),
                                                                              token: cancellationToken);
                 // Get the children based on the page index and size
-                // or return an empty array if there is no matching entity with comments
+                // or return an empty array if there is no matching entity
                 var children = entityComments?.Children.Skip(request.PageIndex * request.PageSize)
                                                        .Take(request.PageSize)
                                ?? Array.Empty<string>();
@@ -93,7 +93,7 @@ namespace CommentsFeed.Features.Comments
                     Comments = comments.Values.Select(comment => new CommentResponse
                     {
                         Id = comment.Id.FromEntityId(),
-                        AuthorId = Guid.Parse(comment.UserId),
+                        AuthorId = comment.UserId,
                         CreatedAt = comment.CreatedAt,
                         Content = comment.Content
                     }).ToArray(),

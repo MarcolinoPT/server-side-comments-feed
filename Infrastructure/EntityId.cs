@@ -14,12 +14,12 @@ namespace CommentsFeed.Infrastructure
             return $"{typeof(T).Name}/{id}";
         }
 
-        public static Guid FromEntityId(this string id)
+        public static string FromEntityId(this string id)
         {
             // index 0 is the type name
             // index 1 is the id itself
             const int index = 1;
-            return Guid.Parse(id.Split('/')[index]);
+            return id.Split('/')[index];
         }
     }
 }

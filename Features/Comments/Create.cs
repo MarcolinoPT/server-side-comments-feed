@@ -31,7 +31,6 @@ namespace CommentsFeed.Features.Comments
 
         public record CreateCommentRequest
         {
-            // TODO Convert ids to GUID
             public string EntityId { get; init; }
             public string AuthorId { get; init; }
             public string Content { get; init; }
@@ -70,7 +69,6 @@ namespace CommentsFeed.Features.Comments
                     Id = Guid.NewGuid().ToEntityId<Comment>(),
                     Content = command.Content,
                     CreatedAt = DateTime.Now,
-                    EntityId = command.EntityId,
                     UserId = command.AuthorId
                 };
                 await session.StoreAsync(entity: newComment,
@@ -92,7 +90,7 @@ namespace CommentsFeed.Features.Comments
                 {
                     await session.StoreAsync(entity: new EntityComments
                     {
-                        Id = newComment.EntityId.ToEntityId<EntityComments>(),
+                        Id = command.EntityId.ToEntityId<EntityComments>(),
                         Children = new[] { newComment.Id },
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
