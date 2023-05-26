@@ -63,13 +63,17 @@ namespace CommentsFeed.Features.Comments
             public Query(ReadCommentsRequest request)
             {
                 EntityId = request.EntityId;
+                UserId = request.UserId;
                 PageIndex = request.PageIndex;
                 PageSize = request.PageSize;
+                Newer = request.Newer;
             }
 
             public string EntityId { get; }
+            public string UserId { get; }
             public int PageIndex { get; }
             public int PageSize { get; }
+            public bool Newer { get; }
         }
 
         internal class Handler : IRequestHandler<Query, ReadCommentsResponse>
@@ -87,9 +91,19 @@ namespace CommentsFeed.Features.Comments
                 using IAsyncDocumentSession session = _storeHolder.Store.OpenAsyncSession();
                 var entityComments = await session.LoadAsync<EntityComments>(id: request.EntityId.ToEntityId<EntityComments>(),
                                                                              token: cancellationToken);
-                // Get the children based on the page index and size
+                var skipCount = request.PageIndex * request.PageSize;
+                if (request.Newer
+                    && entityComments is not null)
+                {
+                    var userComments = await session.LoadAsync<UserComments>(id: request.UserId.ToEntityId<UserComments>(),
+                                                                             token: cancellationToken);
+                    var lastCommentViewedByUser = userComments?.LastViewed[request.EntityId];
+                    skipCount = Array.IndexOf(array: entityComments.Children,
+                                              value: lastCommentViewedByUser.ToEntityId<Comment>()) + 1;
+                }
+                // Get the children based on the skip count
                 // or return an empty array if there is no matching entity
-                var children = entityComments?.Children.Skip(request.PageIndex * request.PageSize)
+                var children = entityComments?.Children.Skip(skipCount)
                                                        .Take(request.PageSize)
                                ?? Array.Empty<string>();
                 var comments = await session.LoadAsync<Comment>(ids: children,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CommentsFeed.Models
 {
-    public class UserComments
+    public record UserComments
     {
         public string Id { get; set; }
         public Dictionary<string, string> LastViewed { get; set; }
