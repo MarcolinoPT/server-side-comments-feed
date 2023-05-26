@@ -2,12 +2,16 @@
 # Postman or insomnia collections would also work to show how to use the API 
 
 @hostname = localhost
-@port = 32768
+@port = 32770
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
 ### Read up to default page size (25) comments from first page
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c
+GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&userId=60b38a05-8488-4810-841d-0a9de794ab5f
+Accept: {{contentType}}
+
+### Read up to default page size (25) comments from first page
+GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&userId=60b38a05-8488-4810-841d-0a9de794ab5f&newer=true
 Accept: {{contentType}}
 
 ### Read 10 comments from first page

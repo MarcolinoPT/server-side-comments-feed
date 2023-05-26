@@ -26,15 +26,21 @@ namespace CommentsFeed.Features.Comments
         {
             var comments = await _mediator.Send(new Query(request),
                                                 cancellationToken);
+            await _mediator.Publish(new QueryNotification(request.EntityId,
+                                                          request.UserId,
+                                                          comments.Comments.LastOrDefault()?.Id),
+                                                          cancellationToken);
             return Ok(comments);
         }
 
         public record ReadCommentsRequest
         {
-            public string EntityId { get; }
-            public int PageIndex { get; }
+            public string EntityId { get; init; }
+            public string UserId { get; init; }
+            public int PageIndex { get; init; }
             // To match the default page size of RavenDB
-            public int PageSize { get; } = 25;
+            public int PageSize { get; init; } = 25;
+            public bool Newer { get; init; }
         }
 
         public record ReadCommentsResponse
@@ -100,6 +106,56 @@ namespace CommentsFeed.Features.Comments
                     Count = comments.Count,
                     PageIndex = request.PageIndex
                 };
+            }
+        }
+
+        internal record QueryNotification(string EntityId,
+                                          string UserId,
+                                          string LastCommentId) : INotification;
+
+        internal class QueryNotificationHandler : INotificationHandler<QueryNotification>
+        {
+            private readonly DocumentStoreHolder _storeHolder;
+
+            public QueryNotificationHandler(DocumentStoreHolder storeHolder)
+            {
+                _storeHolder = storeHolder;
+            }
+
+            public async Task Handle(QueryNotification notification,
+                                     CancellationToken cancellationToken)
+            {
+                // Skip if there is no last comment
+                if (notification.LastCommentId is null)
+                {
+                    return;
+                }
+                // Store the last viewed comment for the user
+                using IAsyncDocumentSession session = _storeHolder.Store.OpenAsyncSession();
+                var userComments = await session.LoadAsync<UserComments>(id: notification.UserId.ToEntityId<UserComments>(),
+                                                                         token: cancellationToken);
+                // New views create a new record
+                if (userComments is null)
+                {
+                    await session.StoreAsync(new UserComments
+                    {
+                        Id = notification.UserId.ToEntityId<UserComments>(),
+                        CreatedAt = DateTime.UtcNow,
+                        LastModified = DateTime.UtcNow,
+                        LastViewed = new()
+                        {
+                            [notification.EntityId] = notification.LastCommentId
+                        }
+                    }, cancellationToken);
+                }
+                // Existing views update the existing record
+                else
+                {
+                    userComments.LastViewed[notification.EntityId] = notification.LastCommentId;
+                    userComments.LastModified = DateTime.UtcNow;
+                    await session.StoreAsync(userComments, cancellationToken);
+                }
+                await session.SaveChangesAsync(cancellationToken);
             }
         }
     }
