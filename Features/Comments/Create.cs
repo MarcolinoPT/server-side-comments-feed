@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Raven.Client.Documents.Session;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,27 +32,39 @@ namespace CommentsFeed.Features.Comments
     public record CreateCommentRequest
     {
         public string EntityId { get; init; }
-        public string Content { get; init; }
         public string AuthorId { get; init; }
+        public string Content { get; init; }
     }
 
     internal record Command : IRequest
     {
         public Command(CreateCommentRequest request)
         {
-            Request = request;
+            EntityId = request.EntityId;
+            Content = request.Content;
+            AuthorId = request.AuthorId;
         }
 
-        public CreateCommentRequest Request { get; init; }
+        public string EntityId { get; init; }
+        public string Content { get; init; }
+        public string AuthorId { get; init; }
     }
 
-    // I use entity explicitly on name on purpose
-    internal record CommentEntity
+    internal record Comment
     {
-        public Guid EntityId { get; init; }
-        public Guid UserId { get; init; }
+        public string Id { get; init; }
+        public string EntityId { get; init; }
+        public string UserId { get; init; }
         public DateTime CreatedAt { get; init; }
         public string Content { get; init; }
+    }
+
+    internal record EntityComments
+    {
+        public string Id { get; init; }
+        public string[] Children { get; set; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     internal class Handler : IRequestHandler<Command>
@@ -63,19 +76,57 @@ namespace CommentsFeed.Features.Comments
             _storeHolder = storeHolder;
         }
 
-        public async Task Handle(Command request,
-                                       CancellationToken cancellationToken)
+        public async Task Handle(Command command,
+                                 CancellationToken cancellationToken)
         {
             using IAsyncDocumentSession session = _storeHolder.Store.OpenAsyncSession();
-            await session.StoreAsync(new CommentEntity
+            // Store new comment so we can relate to the entity
+            var newComment = new Comment
             {
-                Content = request.Request.Content,
+                Id = EntityId<Comment>(Guid.NewGuid()),
+                Content = command.Content,
                 CreatedAt = DateTime.Now,
-                EntityId = Guid.Parse(request.Request.EntityId),
-                UserId = Guid.Parse(request.Request.AuthorId)
-            }, cancellationToken);
+                EntityId = command.EntityId,
+                UserId = command.AuthorId
+            };
+            await session.StoreAsync(entity: newComment,
+                                     id: newComment.Id,
+                                     token: cancellationToken);
+            await session.SaveChangesAsync(cancellationToken);
+            // Find the parent, if it exists
+            var entityCommentsFound = await session.LoadAsync<EntityComments>(id: EntityId<EntityComments>(command.EntityId),
+                                                                              token: cancellationToken);
+            // Update the parent with the new comment reference
+            if (entityCommentsFound is not null)
+            {
+                entityCommentsFound.Children = entityCommentsFound.Children.Append(newComment.Id)
+                                                                           .ToArray();
+                entityCommentsFound.UpdatedAt = DateTime.Now;
+            }
+            // Store the new parent if it doesn't exist
+            else
+            {
+                await session.StoreAsync(entity: new EntityComments
+                {
+                    Id = EntityId<EntityComments>(newComment.EntityId),
+                    Children = new[] { newComment.Id },
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                },
+                                         token: cancellationToken);
+            }
             await session.SaveChangesAsync(cancellationToken);
             return;
+        }
+
+        private static string EntityId<T>(Guid id)
+        {
+            return $"{typeof(T).Name}/{id}";
+        }
+
+        private static string EntityId<T>(string id)
+        {
+            return $"{typeof(T).Name}/{id}"; 
         }
     }
 }

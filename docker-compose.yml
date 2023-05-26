@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "5000:80"
 
   ravendb:
     container_name: ravendb
@@ -19,6 +21,8 @@ services:
     volumes:
       - ravendb-data:/var/lib/ravendb/data
       - ravendb-databases:/var/lib/ravendb/databases
+      - ravendb-config:/opt/RavenDB/config
+      - ravendb-RavenData:/opt/RavenDB/Server/RavenData
     environment:
       - RAVEN_License_Eula_Accepted=true
       - RAVEN_Setup_Mode=Unsecured
@@ -26,3 +30,5 @@ services:
 volumes:
   ravendb-data:
   ravendb-databases:
+  ravendb-config:
+  ravendb-RavenData:

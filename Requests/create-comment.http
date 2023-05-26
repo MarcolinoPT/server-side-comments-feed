@@ -6,13 +6,6 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
-GET http://{{host}}/main/users/4
-Accept: application/json
-
-###
-GET http://{{host}}/main/users?id=2&id=10
-Accept: application/json
-
 ### Create a comment
 POST http://{{host}}/api/v1/comments
 Accept: {{contentType}}
@@ -21,5 +14,5 @@ Content-Type:{{contentType}}
 {
     "authorId": "60b38a05-8488-4810-841d-0a9de794ab5f",
     "entityId": "c75e41e4-6822-472a-9d75-2686fbb8eb7c",
-    "content": "<p>This is a paragraph.</p"
+    "content": "<p>This is a paragraph 2.</p"
 }
