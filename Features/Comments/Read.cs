@@ -144,11 +144,11 @@ namespace CommentsFeed.Features.Comments
                 {
                     return;
                 }
-                // Store the last viewed comment for the user
+                // Find the last viewed comment for the user
                 using IAsyncDocumentSession session = _storeHolder.Store.OpenAsyncSession();
                 var userComments = await session.LoadAsync<UserComments>(id: notification.UserId.ToEntityId<UserComments>(),
                                                                          token: cancellationToken);
-                // New views create a new record
+                // New views create a new record if it doesn't exist
                 if (userComments is null)
                 {
                     await session.StoreAsync(new UserComments
@@ -162,7 +162,7 @@ namespace CommentsFeed.Features.Comments
                         }
                     }, cancellationToken);
                 }
-                // Existing views update the existing record
+                // Existing views update an existing record
                 else
                 {
                     userComments.LastViewed[notification.EntityId] = notification.LastCommentId;

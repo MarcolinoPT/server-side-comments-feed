@@ -5,23 +5,28 @@
 @port = 32770
 @host = {{hostname}}:{{port}}
 @contentType = application/json
+@entity1 = c75e41e4-6822-472a-9d75-2686fbb8eb7c
+@entity2 = c75e41e4-6822-472a-9d75-2686fbb8eb7a
+@userId = 60b38a05-8488-4810-841d-0a9de794ab5f
+@pageSize = 10
+@pageIndex = 0
 
 ### Read up to default page size (25) comments from first page
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&userId=60b38a05-8488-4810-841d-0a9de794ab5f
+GET http://{{host}}/api/v1/comments?entityId={{entity1}}&userId={{userId}}}
 Accept: {{contentType}}
 
-### Read up to default page size (25) comments from first page
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&userId=60b38a05-8488-4810-841d-0a9de794ab5f&newer=true
+### Read up to default page size (25) newer comments from first page
+GET http://{{host}}/api/v1/comments?entityId={{entity1}}}&userId={{userId}}}&newer=true
 Accept: {{contentType}}
 
 ### Read 10 comments from first page
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&pageSize=10&pageIndex=0
+GET http://{{host}}/api/v1/comments?entityId={{entity1}}&userId={{userId}}&pageSize={{pageSize}}&pageIndex={{pageIndex}}
 Accept: {{contentType}}
 
 ### Read up to default page size (25) comments from first page for non-existing entity
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7a
+GET http://{{host}}/api/v1/comments?entityId={{entity2}}&userId={{userId}}}
 Accept: {{contentType}}
 
 ### Read 10 comments from first page for non-existing entity
-GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7a&pageSize=10&pageIndex=0
+GET http://{{host}}/api/v1/comments?entityId={{entity2}}}&pageSize={{pageSize}}&pageIndex={{pageIndex}}
 Accept: {{contentType}}
