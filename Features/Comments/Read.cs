@@ -31,10 +31,10 @@ namespace CommentsFeed.Features.Comments
 
         public record ReadCommentsRequest
         {
-            public string EntityId { get; init; }
-            public int PageIndex { get; init; }
+            public string EntityId { get; }
+            public int PageIndex { get; }
             // To match the default page size of RavenDB
-            public int PageSize { get; init; } = 25;
+            public int PageSize { get; } = 25;
         }
 
         public record ReadCommentsResponse
@@ -97,7 +97,8 @@ namespace CommentsFeed.Features.Comments
                         CreatedAt = comment.CreatedAt,
                         Content = comment.Content
                     }).ToArray(),
-                    Count = comments.Count
+                    Count = comments.Count,
+                    PageIndex = request.PageIndex
                 };
             }
         }
