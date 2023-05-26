@@ -32,12 +32,16 @@ namespace CommentsFeed.Features.Comments
         public record ReadCommentsRequest
         {
             public Guid EntityId { get; init; }
+            public int PageIndex { get; init; }
+            // To match the default page size of RavenDB
+            public int PageSize { get; init; } = 25;
         }
 
         public record ReadCommentsResponse
         {
             public CommentResponse[] Comments { get; init; }
             public int Count { get; init; }
+            public int PageIndex { get; init; }
         }
 
         public record CommentResponse
@@ -53,9 +57,13 @@ namespace CommentsFeed.Features.Comments
             public Query(ReadCommentsRequest request)
             {
                 EntityId = request.EntityId;
+                PageIndex = request.PageIndex;
+                PageSize = request.PageSize;
             }
 
             public Guid EntityId { get; }
+            public int PageIndex { get; init; }
+            public int PageSize { get; init; }
         }
 
         internal class Handler : IRequestHandler<Query, ReadCommentsResponse>
@@ -73,8 +81,12 @@ namespace CommentsFeed.Features.Comments
                 using IAsyncDocumentSession session = _storeHolder.Store.OpenAsyncSession();
                 var entityComments = await session.LoadAsync<EntityComments>(id: request.EntityId.ToEntityId<EntityComments>(),
                                                                              token: cancellationToken);
-                var comments = await session.LoadAsync<Comment>(ids: entityComments?.Children
-                                                                     ?? Array.Empty<string>(),
+                // Get the children based on the page index and size
+                // or return an empty array if there is no matching entity with comments
+                var children = entityComments?.Children.Skip(request.PageIndex * request.PageSize)
+                                                       .Take(request.PageSize)
+                               ?? Array.Empty<string>();
+                var comments = await session.LoadAsync<Comment>(ids: children,
                                                                 token: cancellationToken);
                 return new ReadCommentsResponse
                 {

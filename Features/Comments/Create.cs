@@ -31,6 +31,7 @@ namespace CommentsFeed.Features.Comments
 
         public record CreateCommentRequest
         {
+            // TODO Convert ids to GUID
             public string EntityId { get; init; }
             public string AuthorId { get; init; }
             public string Content { get; init; }

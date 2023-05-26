@@ -6,6 +6,18 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
-### Create a comment
+### Read up to default page size (25) comments from first page
+GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c
+Accept: {{contentType}}
+
+### Read 10 comments from first page
+GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7c&pageSize=10&pageIndex=0
+Accept: {{contentType}}
+
+### Read up to default page size (25) comments from first page for non-existing entity
 GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7a
+Accept: {{contentType}}
+
+### Read 10 comments from first page for non-existing entity
+GET http://{{host}}/api/v1/comments?entityId=c75e41e4-6822-472a-9d75-2686fbb8eb7a&pageSize=10&pageIndex=0
 Accept: {{contentType}}
