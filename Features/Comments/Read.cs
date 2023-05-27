@@ -48,6 +48,7 @@ namespace CommentsFeed.Features.Comments
             public CommentResponse[] Comments { get; init; }
             public int Count { get; init; }
             public int PageIndex { get; init; }
+            public int PageCount { get; init; }
         }
 
         public record CommentResponse
@@ -106,6 +107,10 @@ namespace CommentsFeed.Features.Comments
                 var children = entityComments?.Children.Skip(skipCount)
                                                        .Take(request.PageSize)
                                ?? Array.Empty<string>();
+                // Get the total count of children
+                const int noChildren = 0;
+                var totalChildrenCount = entityComments?.Children.Length
+                                         ?? noChildren;
                 var comments = await session.LoadAsync<Comment>(ids: children,
                                                                 token: cancellationToken);
                 return new ReadCommentsResponse
@@ -118,7 +123,8 @@ namespace CommentsFeed.Features.Comments
                         Content = comment.Content
                     }).ToArray(),
                     Count = comments.Count,
-                    PageIndex = request.PageIndex
+                    PageIndex = request.PageIndex,
+                    PageCount = (int)Math.Ceiling((double)totalChildrenCount / request.PageSize)
                 };
             }
         }
