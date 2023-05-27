@@ -2,7 +2,7 @@
 # Postman or insomnia collections would also work to show how to use the API 
 
 @hostname = localhost
-@port = 32770
+@port = 32768
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 @entityId = "c75e41e4-6822-472a-9d75-2686fbb8eb7c"
@@ -39,5 +39,5 @@ Content-Type:{{contentType}}
 {
     "authorId": {{user2}},
     "entityId": {{entityId}},
-    "content": "<p>This is a paragraph 3.</p>"
+    "content": "<p>This is a paragraph 5.</p>"
 }

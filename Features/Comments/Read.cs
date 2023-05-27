@@ -93,6 +93,10 @@ namespace CommentsFeed.Features.Comments
                 var entityComments = await session.LoadAsync<EntityComments>(id: request.EntityId.ToEntityId<EntityComments>(),
                                                                              token: cancellationToken);
                 var skipCount = request.PageIndex * request.PageSize;
+                // Get the total count of children
+                const int noChildren = 0;
+                var totalChildrenCount = entityComments?.Children.Length
+                                         ?? noChildren;
                 if (request.Newer
                     && entityComments is not null)
                 {
@@ -101,16 +105,13 @@ namespace CommentsFeed.Features.Comments
                     var lastCommentViewedByUser = userComments?.LastViewed[request.EntityId];
                     skipCount = Array.IndexOf(array: entityComments.Children,
                                               value: lastCommentViewedByUser.ToEntityId<Comment>()) + 1;
+                    totalChildrenCount = entityComments.Children.Length - skipCount;
                 }
                 // Get the children based on the skip count
                 // or return an empty array if there is no matching entity
                 var children = entityComments?.Children.Skip(skipCount)
                                                        .Take(request.PageSize)
                                ?? Array.Empty<string>();
-                // Get the total count of children
-                const int noChildren = 0;
-                var totalChildrenCount = entityComments?.Children.Length
-                                         ?? noChildren;
                 var comments = await session.LoadAsync<Comment>(ids: children,
                                                                 token: cancellationToken);
                 return new ReadCommentsResponse

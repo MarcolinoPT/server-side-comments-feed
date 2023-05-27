@@ -9,7 +9,7 @@
 @entity2 = c75e41e4-6822-472a-9d75-2686fbb8eb7a
 @userId = 60b38a05-8488-4810-841d-0a9de794ab5f
 @pageSize = 2
-@pageIndex = 1
+@pageIndex = 0
 
 ### Read up to default page size (25) comments from first page
 GET http://{{host}}/api/v1/comments?entityId={{entity1}}&userId={{userId}}}
@@ -20,7 +20,7 @@ GET http://{{host}}/api/v1/comments?entityId={{entity1}}}&userId={{userId}}}&new
 Accept: {{contentType}}
 
 ### Read 10 comments from first page
-GET http://{{host}}/api/v1/comments?entityId={{entity1}}&userId={{userId}}&pageSize={{pageSize}}&pageIndex={{pageIndex}}
+GET http://{{host}}/api/v1/comments?entityId={{entity1}}&userId={{userId}}&pageSize={{pageSize}}&pageIndex={{pageIndex}}&newer=true
 Accept: {{contentType}}
 
 ### Read up to default page size (25) comments from first page for non-existing entity
